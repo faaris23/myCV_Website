@@ -735,8 +735,8 @@ function animate(){
     else speed*=(1-FRICTION);
     if(Math.abs(speed)<.001)speed=0;
 
-    if(left) steer=Math.min(MAX_STEER,steer+MAX_STEER*.12)*Math.sign(speed||1);
-    else if(right) steer=Math.max(-MAX_STEER,steer-MAX_STEER*.12)*Math.sign(speed||1);
+    if(left) steer=Math.min(MAX_STEER,steer+MAX_STEER*.12);
+    else if(right) steer=Math.max(-MAX_STEER,steer-MAX_STEER*.12);
     else steer*=.7;
 
     carAngle+=steer*speed/.8;
