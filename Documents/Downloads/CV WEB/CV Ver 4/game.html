@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faaris · Drive Mode</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--cyan:#00f5ff;--blue:#0066ff;--pink:#ff0080;--yellow:#ffcc00;--green:#00ff88;--card-bg:rgba(0,10,30,.92);--border:rgba(0,245,255,.3);}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Rajdhani',sans-serif;}
+#c{display:block;width:100%;height:100%;}
+
+/* HUD */
+#hud{position:fixed;inset:0;pointer-events:none;z-index:10;}
+.hud-tl{position:absolute;top:20px;left:20px;}
+.hud-tr{position:absolute;top:20px;right:20px;text-align:right;}
+.hud-bl{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);}
+.hud-br{position:absolute;bottom:20px;right:20px;text-align:right;}
+
+.speed-box{
+  background:rgba(0,10,30,.75);border:1px solid var(--border);backdrop-filter:blur(8px);
+  padding:8px 16px;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%);
+}
+.speed-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,.5);letter-spacing:3px;}
+.speed-val{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:700;color:var(--cyan);text-shadow:0 0 10px var(--cyan);}
+
+.name-hud{font-family:'Orbitron',sans-serif;font-size:clamp(12px,1.5vw,16px);font-weight:700;color:#fff;letter-spacing:3px;text-shadow:0 0 15px rgba(0,245,255,.5);}
+.role-hud{font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(0,245,255,.6);letter-spacing:2px;}
+
+.controls-hint{
+  display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;
+  pointer-events:all;
+}
+.key{display:inline-flex;align-items:center;justify-content:center;background:rgba(0,10,30,.8);border:1px solid var(--border);
+  font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(0,245,255,.7);
+  padding:4px 10px;letter-spacing:1px;gap:4px;}
+
+.back-hud{
+  pointer-events:all;display:inline-flex;align-items:center;gap:8px;
+  background:rgba(0,10,30,.75);border:1px solid var(--border);backdrop-filter:blur(6px);
+  font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(0,245,255,.6);
+  text-decoration:none;padding:7px 14px;letter-spacing:2px;transition:all .2s;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);
+}
+.back-hud:hover{color:var(--cyan);border-color:var(--cyan);}
+
+/* STOP INDICATOR */
+.stop-indicator{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  display:none;flex-direction:column;align-items:center;gap:8px;
+  pointer-events:none;
+}
+.stop-ping{
+  width:16px;height:16px;border-radius:50%;background:var(--yellow);
+  box-shadow:0 0 20px var(--yellow);
+  animation:ping .8s ease-in-out infinite alternate;
+}
+@keyframes ping{from{transform:scale(1);opacity:.7;}to{transform:scale(1.5);opacity:1;}}
+.stop-label{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--yellow);letter-spacing:3px;animation:pulse 1.2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.6;}50%{opacity:1;}}
+
+/* CV PANELS */
+.panel-overlay{
+  position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.panel-overlay.open{display:flex;}
+.cv-panel{
+  background:rgba(0,8,25,.96);border:1px solid var(--border);
+  width:min(700px,95vw);max-height:85vh;overflow-y:auto;
+  position:relative;
+  clip-path:polygon(0 0,calc(100% - 24px) 0,100% 24px,100% 100%,24px 100%,0 calc(100% - 24px));
+  animation:panelIn .3s cubic-bezier(.34,1.56,.64,1);
+}
+.cv-panel::-webkit-scrollbar{width:4px;}
+.cv-panel::-webkit-scrollbar-track{background:transparent;}
+.cv-panel::-webkit-scrollbar-thumb{background:rgba(0,245,255,.3);}
+@keyframes panelIn{from{opacity:0;transform:scale(.9);}to{opacity:1;transform:scale(1);}}
+
+.panel-header{
+  position:sticky;top:0;z-index:5;
+  background:rgba(0,10,30,.98);border-bottom:1px solid var(--border);
+  padding:16px 20px;display:flex;align-items:center;gap:12px;
+}
+.panel-num{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(0,245,255,.4);letter-spacing:3px;}
+.panel-title-text{font-family:'Orbitron',sans-serif;font-size:clamp(12px,1.8vw,15px);font-weight:700;color:#fff;letter-spacing:3px;flex:1;}
+.panel-close{
+  background:none;border:1px solid rgba(0,245,255,.3);color:rgba(0,245,255,.7);
+  width:30px;height:30px;font-size:14px;cursor:pointer;pointer-events:all;
+  font-family:'Orbitron',sans-serif;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;
+}
+.panel-close:hover{border-color:var(--cyan);color:var(--cyan);}
+
+.panel-body{padding:24px;display:flex;flex-direction:column;gap:20px;}
+
+/* Panel content styles */
+.p-section{display:flex;flex-direction:column;gap:12px;}
+.p-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,.45);letter-spacing:4px;border-bottom:1px solid rgba(0,245,255,.1);padding-bottom:8px;}
+.p-text{font-size:15px;color:rgba(224,244,255,.8);line-height:1.7;}
+.p-text strong{color:var(--cyan);}
+
+.p-skill-row{display:flex;align-items:center;gap:12px;padding:6px 0;}
+.p-skill-name{font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;color:#fff;letter-spacing:2px;width:120px;flex-shrink:0;}
+.p-skill-bar{flex:1;height:3px;background:rgba(0,245,255,.1);}
+.p-skill-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));}
+.p-skill-stars{font-size:11px;color:var(--yellow);width:60px;text-align:right;flex-shrink:0;}
+
+.p-exp{background:rgba(0,245,255,.03);border-left:2px solid var(--cyan);padding:14px 16px;}
+.p-exp-title{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:#fff;letter-spacing:2px;margin-bottom:4px;}
+.p-exp-co{font-size:14px;color:var(--cyan);font-weight:600;margin-bottom:4px;}
+.p-exp-date{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);margin-bottom:10px;}
+.p-exp-list{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.p-exp-list li{font-size:13px;color:rgba(224,244,255,.7);padding-left:14px;position:relative;line-height:1.5;}
+.p-exp-list li::before{content:'▸';position:absolute;left:0;color:var(--cyan);}
+
+.p-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.p-tag{padding:3px 10px;border:1px solid rgba(0,245,255,.2);font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,.6);letter-spacing:1px;}
+
+.proj-link-btn{
+  display:inline-flex;align-items:center;gap:8px;margin-top:10px;
+  padding:8px 18px;border:1px solid var(--cyan);
+  font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);
+  text-decoration:none;letter-spacing:2px;transition:all .2s;pointer-events:all;
+  background:rgba(0,245,255,.05);
+}
+.proj-link-btn:hover{background:rgba(0,245,255,.12);box-shadow:0 0 15px rgba(0,245,255,.2);}
+
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.stat-item{background:rgba(0,245,255,.04);padding:10px 14px;border:1px solid rgba(0,245,255,.1);}
+.stat-k{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,.45);letter-spacing:2px;margin-bottom:4px;}
+.stat-v{font-size:14px;color:#fff;font-weight:600;}
+
+.org-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid rgba(0,245,255,.08);}
+.org-icon-sm{font-size:24px;flex-shrink:0;margin-top:2px;}
+.org-nm{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:#fff;letter-spacing:2px;margin-bottom:3px;}
+.org-rl{font-size:13px;color:var(--cyan);font-weight:600;margin-bottom:3px;}
+.org-pd{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);margin-bottom:5px;}
+.org-dc{font-size:12px;color:rgba(224,244,255,.55);line-height:1.5;}
+
+.thesis-box{background:rgba(0,245,255,.04);border-left:2px solid var(--cyan);padding:14px 16px;}
+.thesis-lbl{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,.45);letter-spacing:3px;margin-bottom:6px;}
+.thesis-txt{font-size:14px;color:rgba(224,244,255,.8);line-height:1.6;font-style:italic;}
+
+.contact-link{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(0,245,255,.08);text-decoration:none;pointer-events:all;transition:all .2s;}
+.contact-link:hover{padding-left:8px;}
+.cl-icon{font-size:20px;flex-shrink:0;}
+.cl-lbl{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,.45);letter-spacing:2px;margin-bottom:2px;}
+.cl-val{font-size:14px;color:#fff;font-weight:600;}
+
+/* TOUCH CONTROLS */
+.touch-controls{
+  position:fixed;bottom:80px;left:0;right:0;
+  display:none;justify-content:space-between;padding:0 20px;z-index:20;
+  pointer-events:none;
+}
+@media(max-width:900px){.touch-controls{display:flex;}}
+.touch-btn{
+  width:56px;height:56px;border-radius:50%;
+  background:rgba(0,20,60,.75);border:1px solid var(--border);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;color:var(--cyan);cursor:pointer;pointer-events:all;
+  user-select:none;-webkit-user-select:none;
+  transition:background .15s;
+}
+.touch-btn:active{background:rgba(0,80,180,.5);}
+.touch-cluster{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.touch-row{display:flex;gap:4px;}
+
+/* MINI MAP */
+.minimap{
+  position:fixed;bottom:70px;right:20px;z-index:15;
+  width:100px;height:100px;
+  background:rgba(0,8,25,.85);border:1px solid var(--border);
+  backdrop-filter:blur(6px);overflow:hidden;
+}
+.minimap canvas{width:100%;height:100%;}
+.mm-label{position:absolute;top:3px;left:0;right:0;text-align:center;font-family:'Share Tech Mono',monospace;font-size:8px;color:rgba(0,245,255,.4);letter-spacing:2px;}
+
+/* NEXT STOP HUD */
+.next-stop{
+  position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:15;
+  background:rgba(0,8,25,.85);border:1px solid rgba(0,245,255,.2);backdrop-filter:blur(6px);
+  padding:6px 16px;font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(0,245,255,.6);
+  letter-spacing:2px;pointer-events:none;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);
+}
+</style>
+</head>
+<body>
+
+<!-- THREE.JS CANVAS -->
+<canvas id="c"></canvas>
+
+<!-- HUD -->
+<div id="hud">
+  <div class="hud-tl">
+    <div class="speed-box">
+      <div class="speed-label">SPEED</div>
+      <div class="speed-val" id="speedDisplay">0 <span style="font-size:12px">KM/H</span></div>
+    </div>
+  </div>
+  <div class="hud-tr">
+    <div class="name-hud">FAARIS SAYYID AL-GHOZALI</div>
+    <div class="role-hud">// GAME &amp; AR/VR DEVELOPER</div>
+  </div>
+  <div class="hud-bl">
+    <div class="controls-hint">
+      <span class="key">W / ↑ ACCELERATE</span>
+      <span class="key">S / ↓ BRAKE</span>
+      <span class="key">A D / ← → STEER</span>
+      <span class="key">SPACE HANDBRAKE</span>
+      <a href="index.html" class="back-hud" style="pointer-events:all">← EXIT</a>
+    </div>
+  </div>
+  <div class="hud-br">
+    <a href="index.html" class="back-hud">← BACK</a>
+  </div>
+
+  <!-- Stop indicator center -->
+  <div class="stop-indicator" id="stopIndicator">
+    <div class="stop-ping"></div>
+    <div class="stop-label" id="stopLabel">STOP AHEAD</div>
+  </div>
+</div>
+
+<!-- NEXT STOP HUD -->
+<div class="next-stop" id="nextStop">NEXT STOP: ABOUT ME</div>
+
+<!-- MINIMAP -->
+<div class="minimap"><canvas id="mm"></canvas><div class="mm-label">MAP</div></div>
+
+<!-- TOUCH CONTROLS -->
+<div class="touch-controls">
+  <div class="touch-cluster">
+    <div class="touch-row"><div class="touch-btn" id="tUp">▲</div></div>
+    <div class="touch-row">
+      <div class="touch-btn" id="tLeft">◀</div>
+      <div class="touch-btn" id="tDown">▼</div>
+      <div class="touch-btn" id="tRight">▶</div>
+    </div>
+  </div>
+  <div class="touch-btn" id="tBrake" style="width:70px;height:70px;font-size:14px;font-family:'Share Tech Mono';letter-spacing:1px;">STOP</div>
+</div>
+
+<!-- CV PANELS -->
+<div class="panel-overlay" id="panelOverlay">
+  <div class="cv-panel" id="cvPanel">
+    <div class="panel-header">
+      <span class="panel-num" id="panelNum">STOP 01</span>
+      <span class="panel-title-text" id="panelTitle">ABOUT ME</span>
+      <button class="panel-close" id="panelClose">✕</button>
+    </div>
+    <div class="panel-body" id="panelBody"></div>
+  </div>
+</div>
+
+<!-- THREE.JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+'use strict';
+
+// ─────────────────────────────────────────────
+//  CV STOP DATA
+// ─────────────────────────────────────────────
+const STOPS = [
+  {
+    id:'about', label:'ABOUT ME', num:'STOP 01',
+    z:-60, color:0x00f5ff,
+    render:()=>`
+      <div class="p-section">
+        <div class="p-label">WHO AM I</div>
+        <p class="p-text">Final-year <strong>Informatics Engineering</strong> student at UPNVYK with a deep passion for immersive technologies, game development, and AI.</p>
+        <p class="p-text">Currently building a <strong>VR disaster mitigation training system</strong> for Mount Merapi 🌋 in collaboration with BPPTKG — using gamification to teach emergency response.</p>
+      </div>
+      <div class="p-section">
+        <div class="p-label">STATS</div>
+        <div class="stat-grid">
+          <div class="stat-item"><div class="stat-k">UNIVERSITY</div><div class="stat-v">UPNVYK</div></div>
+          <div class="stat-item"><div class="stat-k">GPA</div><div class="stat-v">3.50 / 4.00</div></div>
+          <div class="stat-item"><div class="stat-k">CLASS</div><div class="stat-v">2022gi</div></div>
+          <div class="stat-item"><div class="stat-k">STATUS</div><div class="stat-v" style="color:#00ff88">Open to Work ✓</div></div>
+          <div class="stat-item"><div class="stat-k">LOCATION</div><div class="stat-v">Sleman, Yogyakarta 🇮🇩</div></div>
+          <div class="stat-item"><div class="stat-k">FOCUS</div><div class="stat-v">Game & XR Dev</div></div>
+        </div>
+      </div>`
+  },
+  {
+    id:'skills', label:'SKILL TREE', num:'STOP 02',
+    z:-200, color:0x0066ff,
+    render:()=>`
+      <div class="p-section">
+        <div class="p-label">GAME & XR ENGINES</div>
+        ${skill('UNITY','95%','★★★★★')}
+        ${skill('UNREAL ENGINE','75%','★★★★')}
+        ${skill('VR / META QUEST','88%','★★★★★')}
+        ${skill('AR / ARCORE','72%','★★★★')}
+      </div>
+      <div class="p-section">
+        <div class="p-label">LANGUAGES</div>
+        ${skill('C#','90%','★★★★★')}
+        ${skill('C++','78%','★★★★')}
+        ${skill('PYTHON','70%','★★★★')}
+      </div>
+      <div class="p-section">
+        <div class="p-label">TOOLS & SOFT</div>
+        <div class="p-tags"><span class="p-tag">BLENDER</span><span class="p-tag">JIRA</span><span class="p-tag">GIT</span><span class="p-tag">MS TEAMS</span><span class="p-tag">LEADERSHIP</span><span class="p-tag">EVENT MGMT</span><span class="p-tag">BUG REPORTING</span><span class="p-tag">PUBLIC SHOWCASING</span></div>
+      </div>`
+  },
+  {
+    id:'experience', label:'EXPERIENCE', num:'STOP 03',
+    z:-360, color:0xff0080,
+    render:()=>`
+      <div class="p-section">
+        <div class="p-label">WORK HISTORY</div>
+        <div class="p-exp">
+          <div class="p-exp-title">GAME TESTER / BUG HUNTER INTERN</div>
+          <div class="p-exp-co">Agate Internasional</div>
+          <div class="p-exp-date">// FEB 2026 — MAY 2026 · FSKU</div>
+          <ul class="p-exp-list">
+            <li>Identified 80–90% of critical & major bugs during testing</li>
+            <li>Documented issues in Jira with structured, clear reports</li>
+            <li>Conducted functional & exploratory testing on game systems</li>
+            <li>Collaborated with dev team via Microsoft Teams</li>
+          </ul>
+          <div class="p-tags"><span class="p-tag">JIRA</span><span class="p-tag">QA</span><span class="p-tag">BUG HUNTING</span></div>
+        </div>
+        <div class="p-exp">
+          <div class="p-exp-title">VICE LEADER — VETERAN FUN EXHIBITION</div>
+          <div class="p-exp-co">UPNVYK</div>
+          <div class="p-exp-date">// MAY 2024 · 100+ Tenants · Thousands of Attendees</div>
+          <ul class="p-exp-list">
+            <li>Co-led one of the university's largest annual events</li>
+            <li>Managed logistics, venue setup, and on-site technical support</li>
+          </ul>
+          <div class="p-tags"><span class="p-tag">LEADERSHIP</span><span class="p-tag">EVENT OPS</span></div>
+        </div>
+        <div class="p-exp">
+          <div class="p-exp-title">HEAD OF EVENT DIVISION — AI NO STAGE</div>
+          <div class="p-exp-co">Bunkasatsu UPNVYK</div>
+          <div class="p-exp-date">// FEB 2023</div>
+          <ul class="p-exp-list">
+            <li>Led Events Division for the organization's flagship annual event</li>
+            <li>Coordinated cross-division teams, timelines, and on-site rundowns</li>
+          </ul>
+          <div class="p-tags"><span class="p-tag">EVENT PLANNING</span><span class="p-tag">CROSS-TEAM</span></div>
+        </div>
+      </div>`
+  },
+  {
+    id:'projects', label:'PROJECTS', num:'STOP 04',
+    z:-520, color:0xffcc00,
+    render:()=>`
+      <div class="p-section">
+        <div class="p-label">PROJECTS</div>
+        <div class="p-exp" style="border-left-color:#f5c518">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#f5c518;letter-spacing:2px;margin-bottom:6px">⭐ LEGENDARY · THESIS</div>
+          <div class="p-exp-title">🌋 VR MERAPI DISASTER MITIGATION</div>
+          <p style="font-size:13px;color:rgba(224,244,255,.75);line-height:1.6;margin:8px 0">VR training game for Mount Merapi disaster response. Meta Quest 2 + Unity + gamification. In collaboration with BPPTKG.</p>
+          <div class="p-tags"><span class="p-tag">UNITY</span><span class="p-tag">META QUEST 2</span><span class="p-tag">VR</span><span class="p-tag">GAMIFICATION</span></div>
+          <a href="#" target="_blank" class="proj-link-btn">VIEW PROJECT →</a>
+        </div>
+        <div class="p-exp" style="border-left-color:#0066ff">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#0066ff;letter-spacing:2px;margin-bottom:6px">💎 EPIC · SOLO DEV</div>
+          <div class="p-exp-title">🌿 JUNGLESCAPE</div>
+          <p style="font-size:13px;color:rgba(224,244,255,.75);line-height:1.6;margin:8px 0">2D puzzle game inspired by Lombok/Sasak culture. Solo-developed in Unity. Storytelling + level design focus.</p>
+          <div class="p-tags"><span class="p-tag">UNITY</span><span class="p-tag">2D PUZZLE</span><span class="p-tag">SOLO DEV</span></div>
+          <a href="#" target="_blank" class="proj-link-btn">VIEW PROJECT →</a>
+        </div>
+        <div class="p-exp" style="border-left-color:#a855f7">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#a855f7;letter-spacing:2px;margin-bottom:6px">🔷 RARE · QA ROLE</div>
+          <div class="p-exp-title">🐻 ZOZO & THE LOST DREAMS</div>
+          <p style="font-size:13px;color:rgba(224,244,255,.75);line-height:1.6;margin:8px 0">Game Tester/Bug Hunter. Caught 80–90% of critical bugs. Jira reporting + Microsoft Teams collaboration.</p>
+          <div class="p-tags"><span class="p-tag">QA</span><span class="p-tag">JIRA</span><span class="p-tag">BUG HUNTING</span></div>
+          <a href="#" target="_blank" class="proj-link-btn">VIEW PROJECT →</a>
+        </div>
+      </div>`
+  },
+  {
+    id:'orgs', label:'ORGANIZATIONS', num:'STOP 05',
+    z:-680, color:0x00ff88,
+    render:()=>`
+      <div class="p-section">
+        <div class="p-label">GUILDS & COMMUNITIES</div>
+        <div class="org-item"><div class="org-icon-sm">🎮</div><div><div class="org-nm">GAMELAN YOGYAKARTA</div><div class="org-rl">Member</div><div class="org-pd">MAY 2024 — PRESENT</div><div class="org-dc">Showcased self-developed game at Gamelan Game Show Case 2026 @ UGM. Prototyping, idea generation, industry knowledge sharing.</div></div></div>
+        <div class="org-item"><div class="org-icon-sm">🕹️</div><div><div class="org-nm">MULTIMEDIA COMMUNITY INFORMATIKA</div><div class="org-rl">Game Dev Division Leader</div><div class="org-pd">FEB 2024 — MAY 2025</div><div class="org-dc">Led division goals. Coordinated Unity projects. Facilitated knowledge-sharing sessions for members.</div></div></div>
+        <div class="org-item"><div class="org-icon-sm">🌸</div><div><div class="org-nm">BUNKASATSU UPNVYK</div><div class="org-rl">Community Division Leader</div><div class="org-pd">JUN 2023 — JUN 2025</div><div class="org-dc">Coordinated external community collaborations. Managed internal Japanese culture activities.</div></div></div>
+        <div class="org-item"><div class="org-icon-sm">🔷</div><div><div class="org-nm">UPN VYK GOOGLE DEVELOPER GROUP</div><div class="org-rl">Member</div><div class="org-pd">FEB 2024 — PRESENT</div><div class="org-dc">Active in tech discussions, workshops, collaborative learning on software development.</div></div></div>
+      </div>`
+  },
+  {
+    id:'education', label:'EDUCATION', num:'STOP 06',
+    z:-840, color:0xff6600,
+    render:()=>`
+      <div class="p-section">
+        <div class="p-label">ACADEMIC BACKGROUND</div>
+        <div class="p-exp">
+          <div class="p-exp-title">UNIVERSITAS PEMBANGUNAN NASIONAL "VETERAN" YOGYAKARTA</div>
+          <div class="p-exp-co">B.Sc. Informatics Engineering — FTI UPNVYK</div>
+          <div class="p-exp-date">// EXPECTED 2026 · GPA 3.50 / 4.00</div>
+          <div class="thesis-box" style="margin-top:12px">
+            <div class="thesis-lbl">THESIS</div>
+            <p class="thesis-txt">"Development of a Virtual Reality Application with a Gamification Approach for Mount Merapi Disaster Mitigation Training"</p>
+          </div>
+          <div class="p-tags" style="margin-top:12px"><span class="p-tag">GAME DEV</span><span class="p-tag">IMMERSIVE TECH</span><span class="p-tag">SOFTWARE DEV</span></div>
+        </div>
+      </div>`
+  },
+  {
+    id:'contact', label:'CONTACT', num:'STOP 07',
+    z:-1000, color:0x00f5ff,
+    render:()=>`
+      <div class="p-section">
+        <div class="p-label">GET IN TOUCH</div>
+        <a href="mailto:farisgozali23@gmail.com" class="contact-link"><span class="cl-icon">📧</span><div><div class="cl-lbl">EMAIL</div><div class="cl-val">farisgozali23@gmail.com</div></div></a>
+        <a href="tel:+6282236281236" class="contact-link"><span class="cl-icon">📱</span><div><div class="cl-lbl">PHONE</div><div class="cl-val">(+62) 822-3628-1236</div></div></a>
+        <a href="https://www.linkedin.com/in/faarisalghozali" target="_blank" class="contact-link"><span class="cl-icon">💼</span><div><div class="cl-lbl">LINKEDIN</div><div class="cl-val">linkedin.com/in/faarisalghozali</div></div></a>
+        <a href="https://github.com/faaris23" target="_blank" class="contact-link"><span class="cl-icon">🐙</span><div><div class="cl-lbl">GITHUB</div><div class="cl-val">github.com/faaris23</div></div></a>
+        <div class="contact-link" style="pointer-events:none"><span class="cl-icon">📍</span><div><div class="cl-lbl">LOCATION</div><div class="cl-val">Sleman, DI Yogyakarta 🇮🇩</div></div></div>
+      </div>
+      <div style="background:rgba(0,245,255,.04);border:1px solid rgba(0,245,255,.2);padding:16px;text-align:center;margin-top:4px">
+        <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#fff;letter-spacing:3px;margin-bottom:6px">OPEN TO OPPORTUNITIES</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(0,245,255,.6);letter-spacing:2px">Game Dev · XR · Software Engineering</div>
+      </div>`
+  }
+];
+
+function skill(name,w,stars){
+  return `<div class="p-skill-row"><div class="p-skill-name">${name}</div><div class="p-skill-bar"><div class="p-skill-fill" style="width:${w}"></div></div><div class="p-skill-stars">${stars}</div></div>`;
+}
+
+// ─────────────────────────────────────────────
+//  THREE.JS SCENE
+// ─────────────────────────────────────────────
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.setSize(innerWidth,innerHeight);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000510);
+scene.fog = new THREE.Fog(0x000510,80,280);
+
+const cam = new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,400);
+
+// ── LIGHTS ──
+const ambLight = new THREE.AmbientLight(0x001133,1.5);
+scene.add(ambLight);
+
+const dirLight = new THREE.DirectionalLight(0x0066ff,.8);
+dirLight.position.set(10,30,10);
+dirLight.castShadow = true;
+scene.add(dirLight);
+
+const neonLight1 = new THREE.PointLight(0x00f5ff,1.5,60);
+neonLight1.position.set(0,8,0);
+scene.add(neonLight1);
+
+// ── ROAD ──
+const ROAD_LEN = 1400;
+const roadGeo = new THREE.PlaneGeometry(12,ROAD_LEN);
+const roadMat = new THREE.MeshLambertMaterial({color:0x111122});
+const road = new THREE.Mesh(roadGeo,roadMat);
+road.rotation.x = -Math.PI/2;
+road.position.set(0,0,-ROAD_LEN/2+100);
+road.receiveShadow = true;
+scene.add(road);
+
+// Road markings
+const makeStripe = (z)=>{
+  const g = new THREE.PlaneGeometry(.25,8);
+  const m = new THREE.MeshLambertMaterial({color:0xffffff,emissive:0x444422,emissiveIntensity:.5});
+  const mesh = new THREE.Mesh(g,m);
+  mesh.rotation.x = -Math.PI/2;
+  mesh.position.set(0,.01,z);
+  scene.add(mesh);
+};
+for(let z=20;z>-ROAD_LEN;z-=20) makeStripe(z);
+
+// Road edge lines
+const makeEdge=(x)=>{
+  const g=new THREE.PlaneGeometry(.08,ROAD_LEN);
+  const m=new THREE.MeshLambertMaterial({color:0x00f5ff,emissive:0x00f5ff,emissiveIntensity:1});
+  const mesh=new THREE.Mesh(g,m);
+  mesh.rotation.x=-Math.PI/2;
+  mesh.position.set(x,.01,-ROAD_LEN/2+100);
+  scene.add(mesh);
+};
+makeEdge(5.9);makeEdge(-5.9);
+
+// ── SIDEWALKS ──
+const swGeo = new THREE.BoxGeometry(6,.3,ROAD_LEN);
+const swMat = new THREE.MeshLambertMaterial({color:0x0a0a22});
+const swL = new THREE.Mesh(swGeo,swMat); swL.position.set(-9,.15,-ROAD_LEN/2+100); scene.add(swL);
+const swR = new THREE.Mesh(swGeo,swMat); swR.position.set(9,.15,-ROAD_LEN/2+100); scene.add(swR);
+
+// ── BUILDINGS ──
+function makeBuilding(x,z,w,h,d,color){
+  const g=new THREE.BoxGeometry(w,h,d);
+  const m=new THREE.MeshLambertMaterial({color});
+  const mesh=new THREE.Mesh(g,m);
+  mesh.position.set(x,h/2,z);
+  mesh.castShadow=true;
+  mesh.receiveShadow=true;
+  scene.add(mesh);
+  // window emissive strips
+  const wg=new THREE.BoxGeometry(w+.05,.4,d+.05);
+  for(let i=2;i<h;i+=2.5){
+    const wm=new THREE.MeshBasicMaterial({color:Math.random()>.5?0x0044aa:0x003366,transparent:true,opacity:.8});
+    const win=new THREE.Mesh(wg,wm);
+    win.position.set(x,i,z);
+    scene.add(win);
+  }
+}
+const bColors=[0x050515,0x070720,0x060618,0x080825];
+const seed=(n)=>((Math.sin(n)*43758.5453)|0);
+for(let i=0;i<60;i++){
+  const z=-40-i*22+(seed(i)%10);
+  const side=i%2===0?1:-1;
+  const x=side*(13+Math.abs(seed(i*3)%7));
+  const w=4+Math.abs(seed(i*7)%8);
+  const h=8+Math.abs(seed(i*11)%30);
+  const d=4+Math.abs(seed(i*13)%10);
+  makeBuilding(x,z,w,h,d,bColors[i%bColors.length]);
+}
+
+// ── STREETLIGHTS ──
+function makeStreetLight(x,z){
+  const pole=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,7),new THREE.MeshLambertMaterial({color:0x334455}));
+  pole.position.set(x,3.5,z);
+  scene.add(pole);
+  const arm=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,1.5),new THREE.MeshLambertMaterial({color:0x334455}));
+  arm.rotation.z=Math.PI/2;
+  arm.position.set(x+(x>0?-0.75:0.75),7,z);
+  scene.add(arm);
+  const bulb=new THREE.Mesh(new THREE.SphereGeometry(.2),new THREE.MeshBasicMaterial({color:x>0?0x00aaff:0x00ccff}));
+  bulb.position.set(x+(x>0?-1.5:1.5),7,z);
+  scene.add(bulb);
+  const light=new THREE.PointLight(0x0066aa,.8,18);
+  light.position.set(x+(x>0?-1.5:1.5),6.5,z);
+  scene.add(light);
+}
+for(let z=0;z>-ROAD_LEN;z-=25){makeStreetLight(7.5,z);makeStreetLight(-7.5,z-12);}
+
+// ── STOP MARKERS ──
+const stopMeshes=[];
+STOPS.forEach((stop,i)=>{
+  const g=new THREE.CylinderGeometry(1.5,1.5,.15,8);
+  const m=new THREE.MeshBasicMaterial({color:stop.color,transparent:true,opacity:.7});
+  const mesh=new THREE.Mesh(g,m);
+  mesh.position.set(0,.1,stop.z);
+  scene.add(mesh);
+  stopMeshes.push(mesh);
+
+  // Hovering sign
+  const sign=new THREE.Mesh(new THREE.BoxGeometry(4,.4,.1),new THREE.MeshBasicMaterial({color:stop.color,transparent:true,opacity:.5}));
+  sign.position.set(0,4.5,stop.z);
+  scene.add(sign);
+
+  // Pole
+  const pole=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,4.5),new THREE.MeshBasicMaterial({color:stop.color,transparent:true,opacity:.4}));
+  pole.position.set(0,2.25,stop.z);
+  scene.add(pole);
+
+  // Light beacon
+  const bl=new THREE.PointLight(stop.color,.8,20);
+  bl.position.set(0,5,stop.z);
+  scene.add(bl);
+});
+
+// ── PARTICLES / RAIN ──
+const rainCount=1500;
+const rainGeo=new THREE.BufferGeometry();
+const rainPos=new Float32Array(rainCount*3);
+for(let i=0;i<rainCount;i++){rainPos[i*3]=(Math.random()-0.5)*80;rainPos[i*3+1]=Math.random()*40;rainPos[i*3+2]=(Math.random()-0.5)*200-100;}
+rainGeo.setAttribute('position',new THREE.BufferAttribute(rainPos,3));
+const rainMat=new THREE.PointsMaterial({color:0x003366,size:.08,transparent:true,opacity:.35});
+const rain=new THREE.Points(rainGeo,rainMat);
+scene.add(rain);
+
+// ── CAR ──
+const carGroup=new THREE.Group();
+scene.add(carGroup);
+
+// Body
+const bodyGeo=new THREE.BoxGeometry(2.2,1,4.2);
+const bodyMat=new THREE.MeshLambertMaterial({color:0x002244,emissive:0x000820,emissiveIntensity:.5});
+const body=new THREE.Mesh(bodyGeo,bodyMat);
+body.position.y=.5;body.castShadow=true;
+carGroup.add(body);
+
+// Cabin
+const cabinGeo=new THREE.BoxGeometry(1.8,.8,2);
+const cabinMat=new THREE.MeshLambertMaterial({color:0x001133,transparent:true,opacity:.9});
+const cabin=new THREE.Mesh(cabinGeo,cabinMat);
+cabin.position.set(0,1.2,.1);
+carGroup.add(cabin);
+
+// Windshield emissive
+const wsGeo=new THREE.PlaneGeometry(1.6,.7);
+const wsMat=new THREE.MeshBasicMaterial({color:0x00aaff,transparent:true,opacity:.3,side:THREE.DoubleSide});
+const ws=new THREE.Mesh(wsGeo,wsMat);
+ws.position.set(0,1.2,1.08);
+carGroup.add(ws);
+
+// Neon underbody
+const neonUnder=new THREE.Mesh(new THREE.PlaneGeometry(2.4,4.4),new THREE.MeshBasicMaterial({color:0x00f5ff,transparent:true,opacity:.15,side:THREE.DoubleSide}));
+neonUnder.rotation.x=Math.PI/2;neonUnder.position.y=-.01;
+carGroup.add(neonUnder);
+
+// Wheels
+function makeWheel(x,z){
+  const g=new THREE.CylinderGeometry(.4,.4,.3,12);
+  const m=new THREE.MeshLambertMaterial({color:0x111111});
+  const mesh=new THREE.Mesh(g,m);
+  mesh.rotation.z=Math.PI/2;
+  mesh.position.set(x,.12,z);
+  mesh.castShadow=true;
+  return mesh;
+}
+const wheels=[makeWheel(1.25,1.4),makeWheel(-1.25,1.4),makeWheel(1.25,-1.4),makeWheel(-1.25,-1.4)];
+wheels.forEach(w=>carGroup.add(w));
+
+// Headlights
+const hlGeo=new THREE.SphereGeometry(.18);
+const hlMat=new THREE.MeshBasicMaterial({color:0xffffff});
+const hl1=new THREE.Mesh(hlGeo,hlMat);hl1.position.set(.7,.5,2.15);carGroup.add(hl1);
+const hl2=new THREE.Mesh(hlGeo,hlMat);hl2.position.set(-.7,.5,2.15);carGroup.add(hl2);
+const hl3=new THREE.SpotLight(0xaaccff,3,40,Math.PI/8,.5);hl3.position.set(.7,1,2.5);scene.add(hl3);
+const hl4=new THREE.SpotLight(0xaaccff,3,40,Math.PI/8,.5);hl4.position.set(-.7,1,2.5);scene.add(hl4);
+
+// Tail lights
+const tlMat=new THREE.MeshBasicMaterial({color:0xff2200});
+const tl1=new THREE.Mesh(new THREE.BoxGeometry(.5,.2,.05),tlMat);tl1.position.set(.8,.5,-2.12);carGroup.add(tl1);
+const tl2=new THREE.Mesh(new THREE.BoxGeometry(.5,.2,.05),tlMat);tl2.position.set(-.8,.5,-2.12);carGroup.add(tl2);
+
+carGroup.position.set(0,0,20);
+carGroup.rotation.y = Math.PI;
+
+// ── PHYSICS STATE ──
+const keys={};
+let speed=0,steer=0,carAngle=Math.PI;
+const MAX_SPEED=0.5,ACC=.04,BRAKE=.06,FRICTION=.025,MAX_STEER=.03;
+
+document.addEventListener('keydown',e=>{keys[e.code]=true;});
+document.addEventListener('keyup',e=>{keys[e.code]=false;});
+
+// Touch
+const tMap={tUp:'ArrowUp',tDown:'ArrowDown',tLeft:'ArrowLeft',tRight:'ArrowRight',tBrake:'Space'};
+Object.keys(tMap).forEach(id=>{
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.addEventListener('touchstart',e=>{e.preventDefault();keys[tMap[id]]=true;},{passive:false});
+  el.addEventListener('touchend',e=>{e.preventDefault();keys[tMap[id]]=false;},{passive:false});
+});
+
+// ── PANEL ──
+let panelOpen=false;
+let lastTriggered=-1;
+
+function openPanel(idx){
+  if(panelOpen)return;
+  panelOpen=true;
+  lastTriggered=idx;
+  const stop=STOPS[idx];
+  document.getElementById('panelNum').textContent=stop.num;
+  document.getElementById('panelTitle').textContent=stop.label;
+  document.getElementById('panelBody').innerHTML=stop.render();
+  document.getElementById('panelOverlay').classList.add('open');
+  speed=0;
+}
+
+function closePanel(){
+  panelOpen=false;
+  document.getElementById('panelOverlay').classList.remove('open');
+}
+
+document.getElementById('panelClose').onclick=closePanel;
+document.getElementById('panelOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('panelOverlay'))closePanel();});
+document.addEventListener('keydown',e=>{if(e.code==='Escape')closePanel();});
+
+// ── MINIMAP ──
+const mm=document.getElementById('mm');
+const mctx=mm.getContext('2d');
+mm.width=100;mm.height=100;
+
+function drawMinimap(){
+  mctx.clearRect(0,0,100,100);
+  mctx.fillStyle='#000810';
+  mctx.fillRect(0,0,100,100);
+  // Road
+  mctx.fillStyle='#111122';
+  mctx.fillRect(38,0,24,100);
+  // Stops
+  STOPS.forEach((s,i)=>{
+    const py=100-((-s.z)/ROAD_LEN*90+5);
+    mctx.beginPath();
+    mctx.arc(50,py,3,0,Math.PI*2);
+    mctx.fillStyle=`#${s.color.toString(16).padStart(6,'0')}`;
+    mctx.fill();
+  });
+  // Car
+  const cz=carGroup.position.z;
+  const cy=100-((- cz)/ROAD_LEN*90+5);
+  mctx.beginPath();
+  mctx.arc(50,Math.max(2,Math.min(98,cy)),4,0,Math.PI*2);
+  mctx.fillStyle='#ffffff';
+  mctx.fill();
+}
+
+// ── CLOCK ──
+const clock=new THREE.Clock();
+let t=0;
+
+// ── RENDER LOOP ──
+function animate(){
+  requestAnimationFrame(animate);
+  const dt=clock.getDelta();
+  t+=dt;
+
+  if(!panelOpen){
+    // Input
+    const fwd=keys['ArrowUp']||keys['KeyW'];
+    const bwd=keys['ArrowDown']||keys['KeyS'];
+    const left=keys['ArrowLeft']||keys['KeyA'];
+    const right=keys['ArrowRight']||keys['KeyD'];
+    const brake=keys['Space'];
+
+    if(fwd) speed=Math.min(MAX_SPEED,speed+ACC);
+    else if(bwd) speed=Math.max(-MAX_SPEED*.5,speed-ACC);
+    else if(brake) speed*=.85;
+    else speed*=(1-FRICTION);
+    if(Math.abs(speed)<.001)speed=0;
+
+    if(left) steer=Math.min(MAX_STEER,steer+MAX_STEER*.12);
+    else if(right) steer=Math.max(-MAX_STEER,steer-MAX_STEER*.12);
+    else steer*=.7;
+
+    carAngle+=steer*speed/.8;
+    carGroup.rotation.y=carAngle;
+    carGroup.position.x+=Math.sin(carAngle)*speed;
+    carGroup.position.z+=Math.cos(carAngle)*speed;
+
+    // Clamp to road
+    carGroup.position.x=Math.max(-4.5,Math.min(4.5,carGroup.position.x));
+    carGroup.position.z=Math.min(22,carGroup.position.z);
+
+    // Wheel spin
+    wheels.forEach(w=>{w.rotation.x+=speed*.35;});
+
+    // Headlights follow
+    hl3.target.position.set(carGroup.position.x+Math.sin(carAngle)*20,.5,carGroup.position.z+Math.cos(carAngle)*20);
+    hl4.target.position.set(carGroup.position.x+Math.sin(carAngle)*20,.5,carGroup.position.z+Math.cos(carAngle)*20);
+
+    // Detect stop
+    let nearStop=-1;
+    STOPS.forEach((s,i)=>{
+      const dz=Math.abs(carGroup.position.z-s.z);
+      if(dz<8)nearStop=i;
+    });
+
+    const si=document.getElementById('stopIndicator');
+    if(nearStop>=0){
+      si.style.display='flex';
+      document.getElementById('stopLabel').textContent='PRESS E TO READ: '+STOPS[nearStop].label;
+      if(keys['KeyE']&&nearStop!==lastTriggered){openPanel(nearStop);}
+      if(nearStop!==lastTriggered&&Math.abs(carGroup.position.z-STOPS[nearStop].z)<3&&Math.abs(speed)<.2){
+        openPanel(nearStop);
+      }
+    } else {
+      si.style.display='none';
+      lastTriggered=-1;
+    }
+
+    // Next stop HUD
+    let nextIdx=-1;
+    for(let i=0;i<STOPS.length;i++){
+      if(STOPS[i].z<carGroup.position.z){nextIdx=i;break;}
+    }
+    document.getElementById('nextStop').textContent=nextIdx>=0?`NEXT STOP: ${STOPS[nextIdx].label}`:'END OF ROAD';
+
+    // Speed display
+    document.getElementById('speedDisplay').innerHTML=Math.abs(Math.round(speed*100))+' <span style="font-size:12px">KM/H</span>';
+  }
+
+  // Camera follow
+  const idealCamPos=new THREE.Vector3(
+    carGroup.position.x+Math.sin(carAngle)*-12,
+    carGroup.position.y+5,
+    carGroup.position.z+Math.cos(carAngle)*-12
+  );
+  cam.position.lerp(idealCamPos,.12);
+  cam.lookAt(carGroup.position.x,carGroup.position.y+1,carGroup.position.z+2);
+
+  // Update neonLight
+  neonLight1.position.set(carGroup.position.x,3,carGroup.position.z);
+  neonLight1.color.setHSL((t*.05)%1,.8,.5);
+
+  // Rain
+  const pos=rain.geometry.attributes.position;
+  for(let i=0;i<rainCount;i++){
+    pos.array[i*3+1]-=.5;
+    pos.array[i*3+2]-=.1;
+    if(pos.array[i*3+1]<0){pos.array[i*3+1]=40;pos.array[i*3+2]=carGroup.position.z+(Math.random()-0.5)*200;}
+  }
+  pos.needsUpdate=true;
+
+  // Pulse stop markers
+  stopMeshes.forEach((m,i)=>{
+    m.material.opacity=.4+.3*Math.sin(t*3+i);
+    m.rotation.y=t*.5;
+  });
+
+  drawMinimap();
+  renderer.render(scene,cam);
+}
+
+window.addEventListener('resize',()=>{
+  renderer.setSize(innerWidth,innerHeight);
+  cam.aspect=innerWidth/innerHeight;
+  cam.updateProjectionMatrix();
+});
+
+animate();
+</script>
+</body>
+</html>

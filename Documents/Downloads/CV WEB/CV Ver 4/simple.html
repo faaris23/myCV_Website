@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faaris · Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--cyan:#00f5ff;--blue:#0066ff;--pink:#ff0080;--bg:#000812;--card:#020f2a;--border:rgba(0,245,255,.18);--glow:0 0 15px rgba(0,245,255,.5);}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:#e0f4ff;font-family:'Rajdhani',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+/* GRID BG */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:linear-gradient(rgba(0,80,200,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,80,200,.05) 1px,transparent 1px);
+  background-size:60px 60px;
+}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,50,180,.15) 0%,transparent 60%);}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:12px 40px;display:flex;align-items:center;justify-content:space-between;
+  background:rgba(0,8,18,.85);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.nav-name{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--cyan);letter-spacing:3px;}
+.nav-links{display:flex;gap:24px;}
+.nav-links a{font-family:'Share Tech Mono',monospace;font-size:12px;color:rgba(0,245,255,.6);text-decoration:none;letter-spacing:2px;transition:color .2s;}
+.nav-links a:hover{color:var(--cyan);text-shadow:var(--glow);}
+.back-btn{font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(0,245,255,.5);text-decoration:none;border:1px solid rgba(0,245,255,.3);padding:5px 14px;border-radius:20px;transition:all .2s;}
+.back-btn:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:var(--glow);}
+
+/* LAYOUT */
+main{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:100px 32px 60px;}
+
+/* HERO */
+.hero{padding:60px 0 80px;text-align:center;position:relative;}
+.hero::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);}
+.hero-tag{font-family:'Share Tech Mono',monospace;font-size:12px;color:rgba(0,245,255,.5);letter-spacing:4px;margin-bottom:16px;}
+.hero-name{font-family:'Orbitron',sans-serif;font-size:clamp(32px,5vw,58px);font-weight:900;color:#fff;letter-spacing:4px;text-shadow:0 0 30px rgba(0,245,255,.5);line-height:1.1;margin-bottom:8px;}
+.hero-role{font-family:'Rajdhani',sans-serif;font-size:clamp(16px,2.5vw,24px);color:var(--cyan);letter-spacing:4px;font-weight:600;margin-bottom:20px;}
+.hero-chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.chip{padding:5px 16px;border:1px solid rgba(0,245,255,.3);border-radius:20px;font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(0,245,255,.7);letter-spacing:1px;}
+
+/* SECTION */
+.section{padding:60px 0;}
+.section-head{display:flex;align-items:center;gap:16px;margin-bottom:32px;}
+.section-num{font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(0,245,255,.4);letter-spacing:3px;}
+.section-title{font-family:'Orbitron',sans-serif;font-size:clamp(14px,2vw,18px);font-weight:700;color:#fff;letter-spacing:4px;text-transform:uppercase;}
+.section-line{flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+
+/* CARDS */
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:0;
+  padding:24px;margin-bottom:16px;position:relative;overflow:hidden;
+  clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%);
+  transition:border-color .3s,box-shadow .3s;
+}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--cyan),transparent);opacity:0;transition:opacity .3s;}
+.card:hover{border-color:rgba(0,245,255,.5);box-shadow:0 0 20px rgba(0,245,255,.06);}
+.card:hover::before{opacity:1;}
+
+/* ABOUT */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.about-text{font-size:16px;color:rgba(224,244,255,.8);line-height:1.8;font-weight:400;}
+.about-text strong{color:var(--cyan);}
+.stat-list{display:flex;flex-direction:column;gap:10px;}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
+.stat-key{font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(0,245,255,.5);letter-spacing:2px;}
+.stat-val{font-family:'Rajdhani',sans-serif;font-size:14px;color:#fff;font-weight:600;}
+
+/* SKILLS */
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.skill-card{
+  background:var(--card);border:1px solid var(--border);padding:16px;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%);
+  transition:all .2s;
+}
+.skill-card:hover{border-color:rgba(0,245,255,.6);transform:translateY(-2px);}
+.skill-name{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:#fff;letter-spacing:2px;margin-bottom:10px;}
+.skill-bar-bg{height:3px;background:rgba(0,245,255,.1);border-radius:0;overflow:hidden;}
+.skill-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:0;animation:barFill 1.5s ease-out forwards;width:0;}
+@keyframes barFill{to{width:var(--w,80%);}}
+.skill-tag{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,.5);margin-top:6px;letter-spacing:1px;}
+
+/* EXPERIENCE */
+.exp-card{padding:24px;margin-bottom:16px;background:var(--card);border:1px solid var(--border);position:relative;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%);transition:all .3s;}
+.exp-card:hover{border-color:rgba(0,245,255,.5);}
+.exp-card.active{border-color:rgba(0,245,255,.4);box-shadow:0 0 20px rgba(0,245,255,.06);}
+.exp-badge{display:inline-block;padding:2px 10px;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;border-radius:20px;margin-bottom:10px;}
+.exp-badge.now{background:rgba(0,245,255,.1);color:var(--cyan);border:1px solid rgba(0,245,255,.4);}
+.exp-badge.done{background:rgba(255,255,255,.05);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.15);}
+.exp-title{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:#fff;letter-spacing:2px;margin-bottom:4px;}
+.exp-company{font-size:15px;color:var(--cyan);font-weight:600;margin-bottom:4px;}
+.exp-date{font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(255,255,255,.35);margin-bottom:12px;letter-spacing:1px;}
+.exp-points{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.exp-points li{font-size:14px;color:rgba(224,244,255,.7);padding-left:16px;position:relative;line-height:1.5;}
+.exp-points li::before{content:'▸';position:absolute;left:0;color:var(--cyan);}
+.exp-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+.tag{padding:3px 10px;border:1px solid rgba(0,245,255,.2);font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,.6);letter-spacing:1px;}
+
+/* PROJECTS */
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+.proj-card{
+  background:var(--card);border:1px solid var(--border);padding:20px;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%);
+  transition:all .3s;cursor:pointer;text-decoration:none;display:block;color:inherit;
+}
+.proj-card:hover{border-color:rgba(0,245,255,.6);transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,245,255,.08);}
+.proj-rarity{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;margin-bottom:10px;}
+.legendary .proj-rarity{color:#f5c518;}
+.epic .proj-rarity{color:var(--blue);}
+.rare .proj-rarity{color:#a855f7;}
+.proj-icon{font-size:32px;margin-bottom:10px;display:block;}
+.proj-name{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:#fff;letter-spacing:2px;margin-bottom:8px;}
+.proj-desc{font-size:13px;color:rgba(224,244,255,.65);line-height:1.6;margin-bottom:12px;}
+.proj-link{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:1px;display:flex;align-items:center;gap:6px;}
+.proj-link::after{content:'→';transition:transform .2s;}
+.proj-card:hover .proj-link::after{transform:translateX(4px);}
+
+/* ORGS */
+.org-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+.org-card{background:var(--card);border:1px solid var(--border);padding:18px;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%);transition:all .2s;}
+.org-card:hover{border-color:rgba(0,245,255,.4);}
+.org-icon{font-size:28px;margin-bottom:10px;display:block;}
+.org-name{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;margin-bottom:4px;line-height:1.4;}
+.org-role{font-size:13px;color:var(--cyan);font-weight:600;margin-bottom:4px;}
+.org-period{font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);margin-bottom:8px;}
+.org-desc{font-size:12px;color:rgba(224,244,255,.55);line-height:1.5;}
+
+/* EDUCATION */
+.edu-card{background:var(--card);border:1px solid var(--border);padding:28px;clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,0 100%);}
+.edu-school{font-family:'Orbitron',sans-serif;font-size:clamp(13px,1.8vw,16px);font-weight:700;color:#fff;letter-spacing:2px;margin-bottom:6px;}
+.edu-degree{font-size:16px;color:var(--cyan);font-weight:600;margin-bottom:6px;}
+.edu-meta{font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(255,255,255,.35);margin-bottom:20px;letter-spacing:1px;}
+.thesis-box{background:rgba(0,245,255,.04);border-left:2px solid var(--cyan);padding:14px 18px;margin-bottom:16px;}
+.thesis-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,.5);letter-spacing:3px;margin-bottom:6px;}
+.thesis-text{font-size:14px;color:rgba(224,244,255,.8);line-height:1.6;font-style:italic;}
+.spec-chips{display:flex;flex-wrap:wrap;gap:8px;}
+.spec{padding:5px 14px;border:1px solid rgba(0,245,255,.25);font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(0,245,255,.7);letter-spacing:2px;}
+
+/* CONTACT */
+.contact-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+.contact-item{
+  display:flex;align-items:center;gap:14px;padding:16px;
+  background:var(--card);border:1px solid var(--border);
+  text-decoration:none;transition:all .2s;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%);
+}
+.contact-item:hover{border-color:rgba(0,245,255,.6);transform:translateX(4px);}
+.ci-icon{font-size:22px;flex-shrink:0;}
+.ci-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,.5);letter-spacing:2px;margin-bottom:3px;}
+.ci-val{font-size:13px;color:#fff;font-weight:600;}
+
+/* FOOTER */
+footer{text-align:center;padding:40px;border-top:1px solid var(--border);position:relative;z-index:1;}
+.footer-text{font-family:'Share Tech Mono',monospace;font-size:11px;color:rgba(0,245,255,.3);letter-spacing:3px;}
+
+@media(max-width:700px){
+  .about-grid{grid-template-columns:1fr;}
+  nav{padding:12px 16px;}
+  .nav-links{display:none;}
+  main{padding:80px 16px 40px;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-name">FAARIS.DEV</span>
+  <div class="nav-links">
+    <a href="#about">ABOUT</a>
+    <a href="#skills">SKILLS</a>
+    <a href="#experience">WORK</a>
+    <a href="#projects">PROJECTS</a>
+    <a href="#orgs">GUILDS</a>
+    <a href="#contact">CONTACT</a>
+  </div>
+  <a href="index.html" class="back-btn">← BACK</a>
+</nav>
+
+<main>
+  <!-- HERO -->
+  <div class="hero">
+    <p class="hero-tag">// PORTFOLIO · SIMPLE MODE</p>
+    <h1 class="hero-name">FAARIS SAYYID<br>AL-GHOZALI</h1>
+    <p class="hero-role">Game &amp; AR/VR Developer</p>
+    <div class="hero-chips">
+      <span class="chip">Unity</span>
+      <span class="chip">Unreal Engine</span>
+      <span class="chip">VR / Meta Quest</span>
+      <span class="chip">C# · C++ · Python</span>
+      <span class="chip">Blender</span>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="section" id="about">
+    <div class="section-head">
+      <span class="section-num">01</span>
+      <h2 class="section-title">About</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="about-grid">
+      <div class="card">
+        <p class="about-text">
+          Final-year <strong>Informatics Engineering</strong> student at UPNVYK with a passion for immersive technologies, game development, and AI.<br><br>
+          Currently building a <strong>VR disaster mitigation training system</strong> for Mount Merapi 🌋 using gamification — in collaboration with BPPTKG. I craft interactive digital experiences that make a real impact.
+        </p>
+      </div>
+      <div class="card">
+        <div class="stat-list">
+          <div class="stat-row"><span class="stat-key">UNIVERSITY</span><span class="stat-val">UPNVYK</span></div>
+          <div class="stat-row"><span class="stat-key">DEGREE</span><span class="stat-val">B.Sc. Informatics Eng.</span></div>
+          <div class="stat-row"><span class="stat-key">GPA</span><span class="stat-val">3.50 / 4.00</span></div>
+          <div class="stat-row"><span class="stat-key">CLASS</span><span class="stat-val">2022</span></div>
+          <div class="stat-row"><span class="stat-key">LOCATION</span><span class="stat-val">Sleman, Yogyakarta 🇮🇩</span></div>
+          <div class="stat-row"><span class="stat-key">STATUS</span><span class="stat-val" style="color:#00ff88;">Open to Work ✓</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SKILLS -->
+  <div class="section" id="skills">
+    <div class="section-head">
+      <span class="section-num">02</span>
+      <h2 class="section-title">Skills</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-card"><div class="skill-name">UNITY</div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--w:95%"></div></div><div class="skill-tag">ENGINE · ★★★★★</div></div>
+      <div class="skill-card"><div class="skill-name">UNREAL ENGINE</div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--w:75%"></div></div><div class="skill-tag">ENGINE · ★★★★</div></div>
+      <div class="skill-card"><div class="skill-name">VR / META QUEST</div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--w:88%"></div></div><div class="skill-tag">XR · ★★★★★</div></div>
+      <div class="skill-card"><div class="skill-name">AR / ARCORE</div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--w:72%"></div></div><div class="skill-tag">XR · ★★★★</div></div>
+      <div class="skill-card"><div class="skill-name">C#</div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--w:90%"></div></div><div class="skill-tag">LANGUAGE · ★★★★★</div></div>
+      <div class="skill-card"><div class="skill-name">C++</div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--w:78%"></div></div><div class="skill-tag">LANGUAGE · ★★★★</div></div>
+      <div class="skill-card"><div class="skill-name">PYTHON</div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--w:70%"></div></div><div class="skill-tag">LANGUAGE · ★★★★</div></div>
+      <div class="skill-card"><div class="skill-name">BLENDER</div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--w:60%"></div></div><div class="skill-tag">3D ART · ★★★</div></div>
+      <div class="skill-card"><div class="skill-name">JIRA / GIT</div><div class="skill-bar-bg"><div class="skill-bar-fill" style="--w:82%"></div></div><div class="skill-tag">TOOLS · ★★★★</div></div>
+    </div>
+  </div>
+
+  <!-- EXPERIENCE -->
+  <div class="section" id="experience">
+    <div class="section-head">
+      <span class="section-num">03</span>
+      <h2 class="section-title">Experience</h2>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="exp-card active">
+      <span class="exp-badge now">▶ CURRENT</span>
+      <div class="exp-title">Game Tester / Bug Hunter Intern</div>
+      <div class="exp-company">Agate Internasional</div>
+      <div class="exp-date">// FEB 2026 — MAY 2026 · Project: FSKU</div>
+      <ul class="exp-points">
+        <li>Identified 80–90% of all critical &amp; major bugs during testing phase</li>
+        <li>Documented issues in Jira with structured, clear bug reports</li>
+        <li>Conducted functional &amp; exploratory testing on game systems</li>
+        <li>Collaborated with dev team via Microsoft Teams to verify fixes</li>
+      </ul>
+      <div class="exp-tags"><span class="tag">JIRA</span><span class="tag">QA</span><span class="tag">BUG HUNTING</span><span class="tag">GAME TESTING</span></div>
+    </div>
+
+    <div class="exp-card">
+      <span class="exp-badge done">✓ COMPLETED</span>
+      <div class="exp-title">Vice Leader — Veteran Fun Exhibition</div>
+      <div class="exp-company">UPNVYK</div>
+      <div class="exp-date">// MAY 2024 · 100+ Tenants · Thousands of Attendees</div>
+      <ul class="exp-points">
+        <li>Co-led one of the university's largest annual events</li>
+        <li>Managed logistics, venue setup, and on-site technical support</li>
+        <li>Coordinated committees, vendors, and participants</li>
+      </ul>
+      <div class="exp-tags"><span class="tag">LEADERSHIP</span><span class="tag">EVENT OPS</span><span class="tag">COORDINATION</span></div>
+    </div>
+
+    <div class="exp-card">
+      <span class="exp-badge done">✓ COMPLETED</span>
+      <div class="exp-title">Head of Event Division — Ai No Stage</div>
+      <div class="exp-company">Bunkasatsu UPNVYK</div>
+      <div class="exp-date">// FEB 2023</div>
+      <ul class="exp-points">
+        <li>Led Events Division for the organization's flagship annual event</li>
+        <li>Coordinated cross-division teams, timelines, and on-site rundowns</li>
+        <li>Ensured high participant engagement and event success</li>
+      </ul>
+      <div class="exp-tags"><span class="tag">EVENT PLANNING</span><span class="tag">LEADERSHIP</span><span class="tag">CROSS-TEAM</span></div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="section" id="projects">
+    <div class="section-head">
+      <span class="section-num">04</span>
+      <h2 class="section-title">Projects</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="proj-grid">
+      <a class="proj-card legendary" href="#" target="_blank">
+        <div class="proj-rarity">⭐ LEGENDARY · THESIS</div>
+        <span class="proj-icon">🌋</span>
+        <div class="proj-name">VR MERAPI MITIGATION</div>
+        <p class="proj-desc">VR training game for Mount Merapi disaster response. Meta Quest 2 + Unity + gamification approach. Built with BPPTKG.</p>
+        <div class="exp-tags" style="margin-bottom:10px;"><span class="tag">UNITY</span><span class="tag">META QUEST 2</span><span class="tag">VR</span></div>
+        <span class="proj-link">VIEW PROJECT</span>
+      </a>
+      <a class="proj-card epic" href="#" target="_blank">
+        <div class="proj-rarity">💎 EPIC · SOLO DEV</div>
+        <span class="proj-icon">🌿</span>
+        <div class="proj-name">JUNGLESCAPE</div>
+        <p class="proj-desc">2D puzzle game inspired by Lombok/Sasak culture. Solo-developed in Unity. Storytelling + level design focus.</p>
+        <div class="exp-tags" style="margin-bottom:10px;"><span class="tag">UNITY</span><span class="tag">2D PUZZLE</span><span class="tag">SOLO</span></div>
+        <span class="proj-link">VIEW PROJECT</span>
+      </a>
+      <a class="proj-card rare" href="#" target="_blank">
+        <div class="proj-rarity">🔷 RARE · QA ROLE</div>
+        <span class="proj-icon">🐻</span>
+        <div class="proj-name">ZOZO & THE LOST DREAMS</div>
+        <p class="proj-desc">Game Tester/Bug Hunter. Caught 80–90% of critical bugs. Used Jira for reporting, collaborated via Microsoft Teams.</p>
+        <div class="exp-tags" style="margin-bottom:10px;"><span class="tag">QA</span><span class="tag">JIRA</span><span class="tag">BUG HUNTING</span></div>
+        <span class="proj-link">VIEW PROJECT</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ORGS -->
+  <div class="section" id="orgs">
+    <div class="section-head">
+      <span class="section-num">05</span>
+      <h2 class="section-title">Organizations</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="org-grid">
+      <div class="org-card"><span class="org-icon">🎮</span><div class="org-name">GAMELAN YOGYAKARTA</div><div class="org-role">Member</div><div class="org-period">MAY 2024 — PRESENT</div><p class="org-desc">Showcased self-developed game at Gamelan Game Show Case 2026 @ UGM. Prototyping, idea generation, knowledge sharing.</p></div>
+      <div class="org-card"><span class="org-icon">🕹️</span><div class="org-name">MULTIMEDIA COMMUNITY INFORMATIKA</div><div class="org-role">Game Dev Division Leader</div><div class="org-period">FEB 2024 — MAY 2025</div><p class="org-desc">Led division goals. Coordinated Unity projects. Facilitated knowledge-sharing sessions for members.</p></div>
+      <div class="org-card"><span class="org-icon">🌸</span><div class="org-name">BUNKASATSU UPNVYK</div><div class="org-role">Community Division Leader</div><div class="org-period">JUN 2023 — JUN 2025</div><p class="org-desc">Coordinated external community collaborations. Managed internal Japanese culture activities.</p></div>
+      <div class="org-card"><span class="org-icon">🔷</span><div class="org-name">UPN VYK GOOGLE DEVELOPER GROUP</div><div class="org-role">Member</div><div class="org-period">FEB 2024 — PRESENT</div><p class="org-desc">Active in tech discussions, workshops, collaborative learning on software development.</p></div>
+    </div>
+  </div>
+
+  <!-- EDUCATION -->
+  <div class="section" id="education">
+    <div class="section-head">
+      <span class="section-num">06</span>
+      <h2 class="section-title">Education</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="edu-card">
+      <div class="edu-school">UNIVERSITAS PEMBANGUNAN NASIONAL "VETERAN" YOGYAKARTA</div>
+      <div class="edu-degree">B.Sc. Informatics Engineering — FTI UPNVYK</div>
+      <div class="edu-meta">// EXPECTED 2026 &nbsp;·&nbsp; GPA 3.50 / 4.00</div>
+      <div class="thesis-box">
+        <div class="thesis-label">THESIS</div>
+        <p class="thesis-text">"Development of a Virtual Reality Application with a Gamification Approach for Mount Merapi Disaster Mitigation Training"</p>
+      </div>
+      <div class="spec-chips">
+        <span class="spec">GAME DEVELOPMENT</span>
+        <span class="spec">IMMERSIVE TECHNOLOGY</span>
+        <span class="spec">SOFTWARE DEVELOPMENT</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="section" id="contact">
+    <div class="section-head">
+      <span class="section-num">07</span>
+      <h2 class="section-title">Contact</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="contact-grid">
+      <a class="contact-item" href="mailto:farisgozali23@gmail.com"><span class="ci-icon">📧</span><div><div class="ci-label">EMAIL</div><div class="ci-val">farisgozali23@gmail.com</div></div></a>
+      <a class="contact-item" href="tel:+6282236281236"><span class="ci-icon">📱</span><div><div class="ci-label">PHONE</div><div class="ci-val">(+62) 822-3628-1236</div></div></a>
+      <a class="contact-item" href="https://www.linkedin.com/in/faarisalghozali" target="_blank"><span class="ci-icon">💼</span><div><div class="ci-label">LINKEDIN</div><div class="ci-val">faarisalghozali</div></div></a>
+      <a class="contact-item" href="https://github.com/faaris23" target="_blank"><span class="ci-icon">🐙</span><div><div class="ci-label">GITHUB</div><div class="ci-val">faaris23</div></div></a>
+      <div class="contact-item" style="cursor:default;"><span class="ci-icon">📍</span><div><div class="ci-label">LOCATION</div><div class="ci-val">Sleman, Yogyakarta 🇮🇩</div></div></div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <p class="footer-text">// FAARIS SAYYID AL-GHOZALI · 2026 · MADE WITH LINES OF CODE</p>
+</footer>
+
+<script>
+// Animate skill bars on scroll
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.querySelectorAll('.skill-bar-fill').forEach(b=>b.style.animationPlayState='running');}});},{threshold:.2});
+document.querySelectorAll('.skills-grid').forEach(g=>{g.querySelectorAll('.skill-bar-fill').forEach(b=>b.style.animationPlayState='paused');obs.observe(g);});
+</script>
+</body>
+</html>
