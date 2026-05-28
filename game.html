@@ -186,6 +186,116 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Ra
   letter-spacing:2px;pointer-events:none;
   clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);
 }
+
+/* ── ENDLESS RUN TRANSITION OVERLAY ── */
+#endlessOverlay{
+  position:fixed;inset:0;z-index:40;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 60%, rgba(255,120,0,0) 0%, rgba(0,0,0,0) 100%);
+  opacity:0;transition:opacity 2s ease;
+}
+#endlessOverlay.active{opacity:1;}
+
+/* ── SUN GLOW OVERLAY ── */
+#sunOverlay{
+  position:fixed;top:0;left:0;right:0;height:55%;pointer-events:none;z-index:5;
+  background:linear-gradient(to bottom, rgba(255,60,0,0) 0%, rgba(255,100,0,0) 100%);
+  opacity:0;transition:opacity 3s ease;
+}
+#sunOverlay.active{
+  background:linear-gradient(to bottom, rgba(20,5,0,.6) 0%, rgba(255,80,10,.15) 60%, rgba(0,0,0,0) 100%);
+  opacity:1;
+}
+
+/* ── ENDLESS HUD ── */
+#endlessHud{
+  position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:12;
+  opacity:0;transition:opacity 2s ease;
+}
+#endlessHud.active{opacity:1;pointer-events:all;}
+
+.endless-title{
+  position:absolute;top:24px;left:50%;transform:translateX(-50%);
+  font-family:'Orbitron',sans-serif;font-size:clamp(10px,1.4vw,14px);font-weight:700;
+  color:#fff;letter-spacing:5px;text-shadow:0 0 20px rgba(255,120,0,.8);
+  white-space:nowrap;
+}
+.endless-subtitle{
+  position:absolute;top:50px;left:50%;transform:translateX(-50%);
+  font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,160,60,.7);
+  letter-spacing:3px;white-space:nowrap;
+}
+
+/* ── CV CARD SLIDER ── */
+#cvSlider{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:0 0 20px 0;
+  background:linear-gradient(to top, rgba(0,0,0,.85) 0%, rgba(0,0,0,0) 100%);
+  pointer-events:all;
+}
+.slider-label{
+  font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,160,60,.5);
+  letter-spacing:4px;text-align:center;margin-bottom:10px;
+}
+.slider-track{
+  display:flex;gap:12px;overflow-x:auto;padding:4px 20px 8px;
+  scrollbar-width:thin;scrollbar-color:rgba(255,120,0,.3) transparent;
+  scroll-behavior:smooth;
+}
+.slider-track::-webkit-scrollbar{height:3px;}
+.slider-track::-webkit-scrollbar-track{background:transparent;}
+.slider-track::-webkit-scrollbar-thumb{background:rgba(255,120,0,.3);}
+
+.cv-card{
+  flex-shrink:0;width:140px;
+  background:rgba(10,5,0,.85);border:1px solid rgba(255,120,0,.25);
+  padding:12px 14px;cursor:pointer;pointer-events:all;
+  transition:all .25s cubic-bezier(.34,1.56,.64,1);
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);
+  position:relative;overflow:hidden;
+}
+.cv-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,120,0,.06) 0%,rgba(0,0,0,0) 60%);
+  pointer-events:none;
+}
+.cv-card:hover{
+  border-color:rgba(255,160,60,.6);transform:translateY(-4px);
+  box-shadow:0 8px 24px rgba(255,100,0,.2);
+}
+.cv-card:active{transform:scale(.97);}
+
+.card-num{font-family:'Share Tech Mono',monospace;font-size:8px;color:rgba(255,120,0,.45);letter-spacing:3px;margin-bottom:4px;}
+.card-icon{font-size:22px;margin-bottom:6px;}
+.card-title{font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;color:#fff;letter-spacing:2px;line-height:1.4;}
+.card-hint{font-family:'Share Tech Mono',monospace;font-size:8px;color:rgba(255,160,60,.5);letter-spacing:1px;margin-top:6px;}
+
+.card-dot{
+  position:absolute;top:10px;right:10px;width:6px;height:6px;border-radius:50%;
+}
+
+/* ── ENDLESS SPEED ── */
+#endlessSpeedBox{
+  position:absolute;top:20px;left:20px;
+  background:rgba(20,8,0,.8);border:1px solid rgba(255,120,0,.3);
+  padding:8px 16px;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%);
+}
+.espeed-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,160,60,.5);letter-spacing:3px;}
+.espeed-val{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:700;color:#ff8c00;text-shadow:0 0 10px rgba(255,140,0,.6);}
+
+#endlessDist{
+  position:absolute;top:20px;right:20px;text-align:right;
+  font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(255,160,60,.6);
+  letter-spacing:2px;
+}
+#endlessDist span{display:block;font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:#ff8c00;}
+
+/* ── FADE IN TRANSITION ── */
+#transitionFlash{
+  position:fixed;inset:0;z-index:50;pointer-events:none;
+  background:rgba(255,140,0,0);transition:background .8s ease;
+}
+#transitionFlash.flash{background:rgba(255,140,0,.35);}
 </style>
 </head>
 <body>
@@ -253,6 +363,31 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Ra
       <button class="panel-close" id="panelClose">✕</button>
     </div>
     <div class="panel-body" id="panelBody"></div>
+  </div>
+</div>
+
+<!-- TRANSITION FLASH -->
+<div id="transitionFlash"></div>
+
+<!-- SUN OVERLAY -->
+<div id="sunOverlay"></div>
+
+<!-- ENDLESS RUN HUD -->
+<div id="endlessHud">
+  <div class="endless-title">THE ROAD GOES ON FOREVER</div>
+  <div class="endless-subtitle">// DRIVING INTO THE HORIZON</div>
+  <div id="endlessSpeedBox">
+    <div class="espeed-label">SPEED</div>
+    <div class="espeed-val" id="endlessSpeedVal">120 <span style="font-size:12px">KM/H</span></div>
+  </div>
+  <div id="endlessDist">
+    <div style="font-size:9px;letter-spacing:3px;margin-bottom:2px">DISTANCE</div>
+    <span id="endlessDistVal">0</span>
+    <div style="font-size:9px;color:rgba(255,160,60,.4);letter-spacing:2px;margin-top:2px">METERS</div>
+  </div>
+  <div id="cvSlider">
+    <div class="slider-label">◀ SWIPE TO BROWSE  ·  TAP TO VIEW SECTION ▶</div>
+    <div class="slider-track" id="sliderTrack"></div>
   </div>
 </div>
 
@@ -352,28 +487,28 @@ const STOPS = [
     id:'projects', label:'PROJECTS', num:'STOP 04',
     z:-520, color:0xffcc00,
     render:()=>`
-      <div class="p-section">
+    <div class="p-section">
         <div class="p-label">PROJECTS</div>
         <div class="p-exp" style="border-left-color:#f5c518">
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#f5c518;letter-spacing:2px;margin-bottom:6px">⭐ LEGENDARY · THESIS</div>
-          <div class="p-exp-title">🌋 VR MERAPI DISASTER MITIGATION</div>
+          <div class="p-exp-title">VR MERAPI DISASTER MITIGATION</div>
           <p style="font-size:13px;color:rgba(224,244,255,.75);line-height:1.6;margin:8px 0">VR training game for Mount Merapi disaster response. Meta Quest 2 + Unity + gamification. In collaboration with BPPTKG.</p>
           <div class="p-tags"><span class="p-tag">UNITY</span><span class="p-tag">META QUEST 2</span><span class="p-tag">VR</span><span class="p-tag">GAMIFICATION</span></div>
-          <a href="#" target="_blank" class="proj-link-btn">VIEW PROJECT →</a>
+          <a href="https://wiibuakut.itch.io/vr-merapi-dissaster" target="_blank" class="proj-link-btn">VIEW PROJECT →</a>
         </div>
         <div class="p-exp" style="border-left-color:#0066ff">
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#0066ff;letter-spacing:2px;margin-bottom:6px">💎 EPIC · SOLO DEV</div>
-          <div class="p-exp-title">🌿 JUNGLESCAPE</div>
+          <div class="p-exp-title">JUNGLESCAPE</div>
           <p style="font-size:13px;color:rgba(224,244,255,.75);line-height:1.6;margin:8px 0">2D puzzle game inspired by Lombok/Sasak culture. Solo-developed in Unity. Storytelling + level design focus.</p>
           <div class="p-tags"><span class="p-tag">UNITY</span><span class="p-tag">2D PUZZLE</span><span class="p-tag">SOLO DEV</span></div>
-          <a href="#" target="_blank" class="proj-link-btn">VIEW PROJECT →</a>
+          <a href="https://wiibuakut.itch.io/" target="_blank" class="proj-link-btn">VIEW PROJECT →</a>
         </div>
         <div class="p-exp" style="border-left-color:#a855f7">
           <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#a855f7;letter-spacing:2px;margin-bottom:6px">🔷 RARE · QA ROLE</div>
-          <div class="p-exp-title">🐻 ZOZO & THE LOST DREAMS</div>
+          <div class="p-exp-title">ZOZO & THE LOST DREAMS</div>
           <p style="font-size:13px;color:rgba(224,244,255,.75);line-height:1.6;margin:8px 0">Game Tester/Bug Hunter. Caught 80–90% of critical bugs. Jira reporting + Microsoft Teams collaboration.</p>
           <div class="p-tags"><span class="p-tag">QA</span><span class="p-tag">JIRA</span><span class="p-tag">BUG HUNTING</span></div>
-          <a href="#" target="_blank" class="proj-link-btn">VIEW PROJECT →</a>
+          <a href="https://store.steampowered.com/app/3230120/Zozo_and_the_Lost_Dreams/" target="_blank" class="proj-link-btn">VIEW PROJECT →</a>
         </div>
       </div>`
   },
@@ -577,7 +712,7 @@ const rainGeo=new THREE.BufferGeometry();
 const rainPos=new Float32Array(rainCount*3);
 for(let i=0;i<rainCount;i++){rainPos[i*3]=(Math.random()-0.5)*80;rainPos[i*3+1]=Math.random()*40;rainPos[i*3+2]=(Math.random()-0.5)*200-100;}
 rainGeo.setAttribute('position',new THREE.BufferAttribute(rainPos,3));
-const rainMat=new THREE.PointsMaterial({color:0x003366,size:.08,transparent:true,opacity:.35});
+const rainMat=new THREE.PointsMaterial({color:0x003366,size:.2,transparent:true,opacity:.35});
 const rain=new THREE.Points(rainGeo,rainMat);
 scene.add(rain);
 
@@ -643,7 +778,7 @@ carGroup.rotation.y = Math.PI;
 // ── PHYSICS STATE ──
 const keys={};
 let speed=0,steer=0,carAngle=Math.PI;
-const MAX_SPEED=0.5,ACC=.04,BRAKE=.06,FRICTION=.025,MAX_STEER=.03;
+const MAX_SPEED=0.35,ACC=.025,BRAKE=.04,FRICTION=.018,MAX_STEER=.03;
 
 document.addEventListener('keydown',e=>{keys[e.code]=true;});
 document.addEventListener('keyup',e=>{keys[e.code]=false;});
@@ -715,104 +850,410 @@ function drawMinimap(){
 const clock=new THREE.Clock();
 let t=0;
 
+// ─────────────────────────────────────────────
+//  ENDLESS RUN SYSTEM
+// ─────────────────────────────────────────────
+let endlessMode=false;
+let endlessTriggered=false;
+let endlessTransitioning=false;
+let endlessSpeed=0;
+const ENDLESS_TARGET_SPEED=0.42;
+let endlessDist=0;
+let endlessChunkZ=0; // tracks where we last spawned
+const endlessChunks=[]; // for cleanup
+let sunMesh=null;
+let sunLight=null;
+let skyGradientMesh=null;
+let endlessCamLiftProgress=0;
+
+// Build the CV card slider
+(function buildSlider(){
+  const icons=['👤','🎮','💼','🚀','🏛️','🎓','📡'];
+  const track=document.getElementById('sliderTrack');
+  const stopColors=['#00f5ff','#0066ff','#ff0080','#ffcc00','#00ff88','#ff6600','#00f5ff'];
+  STOPS.forEach((s,i)=>{
+    const card=document.createElement('div');
+    card.className='cv-card';
+    card.innerHTML=`
+      <div class="card-dot" style="background:${stopColors[i]};box-shadow:0 0 8px ${stopColors[i]}"></div>
+      <div class="card-num">${s.num}</div>
+      <div class="card-icon">${icons[i]||'📄'}</div>
+      <div class="card-title">${s.label}</div>
+      <div class="card-hint">TAP TO VIEW →</div>
+    `;
+    card.addEventListener('click',()=>openPanel(i));
+    track.appendChild(card);
+  });
+})();
+
+function createSun(){
+  // Sky gradient plane far ahead
+  const skyGeo=new THREE.PlaneGeometry(600,300);
+  const skyMat=new THREE.MeshBasicMaterial({
+    color:0x0d0200,side:THREE.DoubleSide,transparent:true,opacity:1
+  });
+  skyGradientMesh=new THREE.Mesh(skyGeo,skyMat);
+  skyGradientMesh.rotation.x=-Math.PI/2;
+  skyGradientMesh.position.set(0,.5,carGroup.position.z-600);
+  scene.add(skyGradientMesh);
+
+  // Sun disc
+  const sunGeo=new THREE.CircleGeometry(18,32);
+  const sunMat=new THREE.MeshBasicMaterial({color:0xff6600,transparent:true,opacity:.95});
+  sunMesh=new THREE.Mesh(sunGeo,sunMat);
+  sunMesh.position.set(0,14,carGroup.position.z-380);
+  scene.add(sunMesh);
+
+  // Sun glow rings
+  for(let r=0;r<4;r++){
+    const ringGeo=new THREE.RingGeometry(18+r*12,20+r*12,32);
+    const ringMat=new THREE.MeshBasicMaterial({
+      color:new THREE.Color().setHSL(.05+r*.02,.9,.5),
+      transparent:true,opacity:.12-r*.025,side:THREE.DoubleSide
+    });
+    const ring=new THREE.Mesh(ringGeo,ringMat);
+    ring.position.set(0,14,carGroup.position.z-379-r);
+    scene.add(ring);
+    endlessChunks.push(ring);
+  }
+
+  // Warm sun point light
+  sunLight=new THREE.PointLight(0xff5500,2,200);
+  sunLight.position.set(0,14,carGroup.position.z-360);
+  scene.add(sunLight);
+
+  endlessChunks.push(sunMesh,skyGradientMesh);
+}
+
+// Procedural chunk spawner
+const CHUNK_SIZE=80;
+let chunkIndex=0;
+const rng=(seed)=>((Math.sin(seed*9301+49297)*233280)%1+1)%1;
+
+function spawnChunk(zStart){
+  const cz=zStart-CHUNK_SIZE/2;
+  const ci=chunkIndex++;
+
+  // Road segment
+  const roadSeg=new THREE.Mesh(
+    new THREE.PlaneGeometry(12,CHUNK_SIZE),
+    new THREE.MeshLambertMaterial({color:0x111122})
+  );
+  roadSeg.rotation.x=-Math.PI/2;
+  roadSeg.position.set(0,.001,cz);
+  scene.add(roadSeg);
+  endlessChunks.push(roadSeg);
+
+  // Road markings
+  for(let dz=0;dz<CHUNK_SIZE;dz+=20){
+    const stripe=new THREE.Mesh(
+      new THREE.PlaneGeometry(.25,8),
+      new THREE.MeshLambertMaterial({color:0xffffff,emissive:0x444422,emissiveIntensity:.5})
+    );
+    stripe.rotation.x=-Math.PI/2;
+    stripe.position.set(0,.02,zStart-dz-10);
+    scene.add(stripe);
+    endlessChunks.push(stripe);
+  }
+
+  // Edge lines
+  [-5.9,5.9].forEach(ex=>{
+    const edge=new THREE.Mesh(
+      new THREE.PlaneGeometry(.08,CHUNK_SIZE),
+      new THREE.MeshLambertMaterial({color:0xff6600,emissive:0xff6600,emissiveIntensity:1})
+    );
+    edge.rotation.x=-Math.PI/2;
+    edge.position.set(ex,.02,cz);
+    scene.add(edge);
+    endlessChunks.push(edge);
+  });
+
+  // Sidewalks
+  [-9,9].forEach(sx=>{
+    const sw=new THREE.Mesh(
+      new THREE.BoxGeometry(6,.3,CHUNK_SIZE),
+      new THREE.MeshLambertMaterial({color:0x0a0a22})
+    );
+    sw.position.set(sx,.15,cz);
+    scene.add(sw);
+    endlessChunks.push(sw);
+  });
+
+  // Buildings
+  const bCols=[0x1a0500,0x0d0300,0x200800,0x150400];
+  for(let side of[-1,1]){
+    const count=2+Math.floor(rng(ci*31+side)*3);
+    let bz=zStart;
+    for(let b=0;b<count;b++){
+      const bw=4+rng(ci*7+b+side)*8;
+      const bh=8+rng(ci*11+b+side)*35;
+      const bd=4+rng(ci*13+b+side)*12;
+      const bx=side*(13+rng(ci*3+b)*7);
+      bz-=bd/2+2;
+      const mesh=new THREE.Mesh(
+        new THREE.BoxGeometry(bw,bh,bd),
+        new THREE.MeshLambertMaterial({color:bCols[Math.floor(rng(ci+b)*bCols.length)]})
+      );
+      mesh.position.set(bx,bh/2,bz);
+      scene.add(mesh);
+      endlessChunks.push(mesh);
+      // Window strips
+      const wg=new THREE.BoxGeometry(bw+.05,.4,bd+.05);
+      for(let wi=2;wi<bh;wi+=2.5){
+        const wm=new THREE.MeshBasicMaterial({
+          color:rng(ci+b+wi)>.4?0x550800:0x330400,
+          transparent:true,opacity:.85
+        });
+        const win=new THREE.Mesh(wg,wm);
+        win.position.set(bx,wi,bz);
+        scene.add(win);
+        endlessChunks.push(win);
+      }
+      bz-=bd/2+rng(ci+b)*6+2;
+      if(bz<zStart-CHUNK_SIZE)break;
+    }
+  }
+
+  // Streetlights
+  const lightPositions=[zStart-15,zStart-45,zStart-70];
+  lightPositions.forEach((lz,li)=>{
+    [[7.5,1],[-7.5,-1]].forEach(([lx,dir],si)=>{
+      if((li+si)%2!==0)return;
+      const pole=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,7),new THREE.MeshLambertMaterial({color:0x554422}));
+      pole.position.set(lx,3.5,lz);scene.add(pole);
+      const arm=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,1.5),new THREE.MeshLambertMaterial({color:0x554422}));
+      arm.rotation.z=Math.PI/2;arm.position.set(lx+dir*-.75,7,lz);scene.add(arm);
+      const bulb=new THREE.Mesh(new THREE.SphereGeometry(.2),new THREE.MeshBasicMaterial({color:0xff8833}));
+      bulb.position.set(lx+dir*-1.5,7,lz);scene.add(bulb);
+      const pl=new THREE.PointLight(0xff6600,.6,18);
+      pl.position.set(lx+dir*-1.5,6.5,lz);scene.add(pl);
+      endlessChunks.push(pole,arm,bulb,pl);
+    });
+  });
+
+  return zStart-CHUNK_SIZE;
+}
+
+function triggerEndlessMode(){
+  if(endlessTriggered)return;
+  endlessTriggered=true;
+  endlessTransitioning=true;
+
+  // Hide normal HUD elements
+  document.getElementById('hud').style.transition='opacity 2s';
+  document.getElementById('hud').style.opacity='0';
+  document.getElementById('nextStop').style.transition='opacity 2s';
+  document.getElementById('nextStop').style.opacity='0';
+  document.querySelector('.minimap').style.transition='opacity 2s';
+  document.querySelector('.minimap').style.opacity='0';
+  document.querySelector('.touch-controls').style.opacity='0';
+
+  // Flash
+  const flash=document.getElementById('transitionFlash');
+  flash.classList.add('flash');
+  setTimeout(()=>flash.classList.remove('flash'),800);
+
+  // Activate sun overlay
+  setTimeout(()=>{
+    document.getElementById('sunOverlay').classList.add('active');
+  },500);
+
+  // Switch fog to warm orange
+  scene.fog=new THREE.Fog(0x0d0200,60,320);
+  scene.background=new THREE.Color(0x0d0200);
+
+  // Create sun and procedural road
+  createSun();
+  endlessChunkZ=carGroup.position.z-40;
+  for(let i=0;i<6;i++) endlessChunkZ=spawnChunk(endlessChunkZ);
+
+  // Show endless HUD after transition
+  setTimeout(()=>{
+    endlessTransitioning=false;
+    endlessMode=true;
+    document.getElementById('endlessHud').classList.add('active');
+    document.getElementById('hud').style.display='none';
+    document.getElementById('nextStop').style.display='none';
+    document.querySelector('.minimap').style.display='none';
+  },2200);
+}
+
 // ── RENDER LOOP ──
 function animate(){
   requestAnimationFrame(animate);
   const dt=clock.getDelta();
   t+=dt;
 
-  if(!panelOpen){
-    // Input
-    const fwd=keys['ArrowUp']||keys['KeyW'];
-    const bwd=keys['ArrowDown']||keys['KeyS'];
-    const left=keys['ArrowLeft']||keys['KeyA'];
-    const right=keys['ArrowRight']||keys['KeyD'];
-    const brake=keys['Space'];
+  if(endlessMode){
+    // ── ENDLESS RUN ──
+    // Auto-accelerate toward target speed
+    if(endlessSpeed<ENDLESS_TARGET_SPEED) endlessSpeed+=.003;
+    endlessSpeed=Math.min(ENDLESS_TARGET_SPEED+Math.sin(t*.05)*.05, endlessSpeed);
 
-    if(fwd) speed=Math.min(MAX_SPEED,speed+ACC);
-    else if(bwd) speed=Math.max(-MAX_SPEED*.5,speed-ACC);
-    else if(brake) speed*=.85;
-    else speed*=(1-FRICTION);
-    if(Math.abs(speed)<.001)speed=0;
-
-    if(left) steer=Math.min(MAX_STEER,steer+MAX_STEER*.12);
-    else if(right) steer=Math.max(-MAX_STEER,steer-MAX_STEER*.12);
-    else steer*=.7;
-
-    carAngle+=steer*speed/.8;
+    // Small gentle weave for cinematic feel
+    const weave=Math.sin(t*.18)*.012;
+    carAngle=Math.PI+weave;
     carGroup.rotation.y=carAngle;
-    carGroup.position.x+=Math.sin(carAngle)*speed;
-    carGroup.position.z+=Math.cos(carAngle)*speed;
-
-    // Clamp to road
-    carGroup.position.x=Math.max(-4.5,Math.min(4.5,carGroup.position.x));
-    carGroup.position.z=Math.min(22,carGroup.position.z);
+    carGroup.position.z-=endlessSpeed;
+    carGroup.position.x=Math.sin(t*.12)*1.8; // gentle drift
+    carGroup.position.x=Math.max(-3.5,Math.min(3.5,carGroup.position.x));
 
     // Wheel spin
+    wheels.forEach(w=>{w.rotation.x+=endlessSpeed*.35;});
+
+    // Spawn new chunks ahead
+    while(endlessChunkZ>carGroup.position.z-400){
+      endlessChunkZ=spawnChunk(endlessChunkZ);
+    }
+
+    // Cleanup chunks far behind
+    while(endlessChunks.length>800){
+      const old=endlessChunks.shift();
+      scene.remove(old);
+      if(old.geometry)old.geometry.dispose();
+      if(old.material)old.material.dispose();
+    }
+
+    // Move sun with car
+    if(sunMesh){
+      sunMesh.position.z=carGroup.position.z-380;
+      sunMesh.rotation.z=t*.02;
+    }
+    if(sunLight) sunLight.position.z=carGroup.position.z-360;
+    if(skyGradientMesh) skyGradientMesh.position.z=carGroup.position.z-600;
+
+    // Update distance
+    endlessDist+=endlessSpeed*100;
+    document.getElementById('endlessDistVal').textContent=Math.round(endlessDist);
+    document.getElementById('endlessSpeedVal').innerHTML=Math.round(endlessSpeed*340)+' <span style="font-size:12px">KM/H</span>';
+
+    // Cinematic camera — lifted, slightly behind, looking forward toward sun
+    const camTargetY=8+Math.sin(t*.08)*1.5;
+    const camTargetZ=carGroup.position.z+16;
+    const camLookAheadZ=carGroup.position.z-30;
+    const idealPos=new THREE.Vector3(carGroup.position.x*.3, camTargetY, camTargetZ);
+    cam.position.lerp(idealPos,.06);
+    const lookTarget=new THREE.Vector3(carGroup.position.x*.2,3,camLookAheadZ);
+    cam.lookAt(lookTarget);
+
+    // Warm color for neon
+    neonLight1.position.set(carGroup.position.x,3,carGroup.position.z);
+    neonLight1.color.set(0xff5500);
+
+    // Ambient light slowly warms
+    ambLight.color.setHSL(.05,.8,.3+Math.sin(t*.1)*.05);
+
+    // Fog warms
+    scene.fog.color.setHSL(.05+Math.sin(t*.03)*.01,.6,.03);
+
+  } else if(!endlessTransitioning) {
+    // ── NORMAL DRIVING MODE ──
+    if(!panelOpen){
+      const fwd=keys['ArrowUp']||keys['KeyW'];
+      const bwd=keys['ArrowDown']||keys['KeyS'];
+      const left=keys['ArrowLeft']||keys['KeyA'];
+      const right=keys['ArrowRight']||keys['KeyD'];
+      const brake=keys['Space'];
+
+      if(fwd) speed=Math.min(MAX_SPEED,speed+ACC);
+      else if(bwd) speed=Math.max(-MAX_SPEED*.5,speed-ACC);
+      else if(brake) speed*=.85;
+      else speed*=(1-FRICTION);
+      if(Math.abs(speed)<.001)speed=0;
+
+      if(left) steer=Math.min(MAX_STEER,steer+MAX_STEER*.12);
+      else if(right) steer=Math.max(-MAX_STEER,steer-MAX_STEER*.12);
+      else steer*=.7;
+
+      carAngle+=steer*speed/.8;
+      carGroup.rotation.y=carAngle;
+      carGroup.position.x+=Math.sin(carAngle)*speed;
+      carGroup.position.z+=Math.cos(carAngle)*speed;
+
+      carGroup.position.x=Math.max(-4.5,Math.min(4.5,carGroup.position.x));
+      carGroup.position.z=Math.min(22,carGroup.position.z);
+
+      wheels.forEach(w=>{w.rotation.x+=speed*.35;});
+
+      hl3.target.position.set(carGroup.position.x+Math.sin(carAngle)*20,.5,carGroup.position.z+Math.cos(carAngle)*20);
+      hl4.target.position.set(carGroup.position.x+Math.sin(carAngle)*20,.5,carGroup.position.z+Math.cos(carAngle)*20);
+
+      // Detect stop
+      let nearStop=-1;
+      STOPS.forEach((s,i)=>{
+        const dz=Math.abs(carGroup.position.z-s.z);
+        if(dz<8)nearStop=i;
+      });
+
+      const si=document.getElementById('stopIndicator');
+      if(nearStop>=0){
+        si.style.display='flex';
+        document.getElementById('stopLabel').textContent='PRESS E TO READ: '+STOPS[nearStop].label;
+        if(keys['KeyE']&&nearStop!==lastTriggered){openPanel(nearStop);}
+        if(nearStop!==lastTriggered&&Math.abs(carGroup.position.z-STOPS[nearStop].z)<3&&Math.abs(speed)<.2){
+          openPanel(nearStop);
+        }
+      } else {
+        si.style.display='none';
+        lastTriggered=-1;
+      }
+
+      // Next stop HUD
+      let nextIdx=-1;
+      for(let i=0;i<STOPS.length;i++){
+        if(STOPS[i].z<carGroup.position.z){nextIdx=i;break;}
+      }
+      const nextLabel=nextIdx>=0?`NEXT STOP: ${STOPS[nextIdx].label}`:'END OF ROAD';
+      document.getElementById('nextStop').textContent=nextLabel;
+
+      // Speed display
+      document.getElementById('speedDisplay').innerHTML=Math.abs(Math.round(speed*100))+' <span style="font-size:12px">KM/H</span>';
+
+      // ── DETECT END OF ROAD ── trigger when past last stop + a bit
+      if(carGroup.position.z < STOPS[STOPS.length-1].z-60 && !endlessTriggered){
+        triggerEndlessMode();
+      }
+    }
+
+    // Normal camera follow
+    const idealCamPos=new THREE.Vector3(
+      carGroup.position.x+Math.sin(carAngle)*-12,
+      carGroup.position.y+5,
+      carGroup.position.z+Math.cos(carAngle)*-12
+    );
+    cam.position.lerp(idealCamPos,.12);
+    cam.lookAt(carGroup.position.x,carGroup.position.y+1,carGroup.position.z+2);
+
+    neonLight1.position.set(carGroup.position.x,3,carGroup.position.z);
+    neonLight1.color.setHSL((t*.05)%1,.8,.5);
+
+    // Rain
+    const pos=rain.geometry.attributes.position;
+    for(let i=0;i<rainCount;i++){
+      pos.array[i*3+1]-=.5;
+      pos.array[i*3+2]-=.1;
+      if(pos.array[i*3+1]<0){pos.array[i*3+1]=40;pos.array[i*3+2]=carGroup.position.z+(Math.random()-0.5)*200;}
+    }
+    pos.needsUpdate=true;
+
+    stopMeshes.forEach((m,i)=>{
+      m.material.opacity=.4+.3*Math.sin(t*3+i);
+      m.rotation.y=t*.5;
+    });
+  } else {
+    // Transitioning — let car slow then straighten
+    speed*=.96;
+    carGroup.position.z+=Math.cos(carAngle)*speed;
     wheels.forEach(w=>{w.rotation.x+=speed*.35;});
 
-    // Headlights follow
-    hl3.target.position.set(carGroup.position.x+Math.sin(carAngle)*20,.5,carGroup.position.z+Math.cos(carAngle)*20);
-    hl4.target.position.set(carGroup.position.x+Math.sin(carAngle)*20,.5,carGroup.position.z+Math.cos(carAngle)*20);
-
-    // Detect stop
-    let nearStop=-1;
-    STOPS.forEach((s,i)=>{
-      const dz=Math.abs(carGroup.position.z-s.z);
-      if(dz<8)nearStop=i;
-    });
-
-    const si=document.getElementById('stopIndicator');
-    if(nearStop>=0){
-      si.style.display='flex';
-      document.getElementById('stopLabel').textContent='PRESS E TO READ: '+STOPS[nearStop].label;
-      if(keys['KeyE']&&nearStop!==lastTriggered){openPanel(nearStop);}
-      if(nearStop!==lastTriggered&&Math.abs(carGroup.position.z-STOPS[nearStop].z)<3&&Math.abs(speed)<.2){
-        openPanel(nearStop);
-      }
-    } else {
-      si.style.display='none';
-      lastTriggered=-1;
-    }
-
-    // Next stop HUD
-    let nextIdx=-1;
-    for(let i=0;i<STOPS.length;i++){
-      if(STOPS[i].z<carGroup.position.z){nextIdx=i;break;}
-    }
-    document.getElementById('nextStop').textContent=nextIdx>=0?`NEXT STOP: ${STOPS[nextIdx].label}`:'END OF ROAD';
-
-    // Speed display
-    document.getElementById('speedDisplay').innerHTML=Math.abs(Math.round(speed*100))+' <span style="font-size:12px">KM/H</span>';
+    const idealCamPos=new THREE.Vector3(
+      carGroup.position.x+Math.sin(carAngle)*-12,
+      carGroup.position.y+5,
+      carGroup.position.z+Math.cos(carAngle)*-12
+    );
+    cam.position.lerp(idealCamPos,.08);
+    cam.lookAt(carGroup.position.x,carGroup.position.y+1,carGroup.position.z+2);
   }
-
-  // Camera follow
-  const idealCamPos=new THREE.Vector3(
-    carGroup.position.x+Math.sin(carAngle)*-12,
-    carGroup.position.y+5,
-    carGroup.position.z+Math.cos(carAngle)*-12
-  );
-  cam.position.lerp(idealCamPos,.12);
-  cam.lookAt(carGroup.position.x,carGroup.position.y+1,carGroup.position.z+2);
-
-  // Update neonLight
-  neonLight1.position.set(carGroup.position.x,3,carGroup.position.z);
-  neonLight1.color.setHSL((t*.05)%1,.8,.5);
-
-  // Rain
-  const pos=rain.geometry.attributes.position;
-  for(let i=0;i<rainCount;i++){
-    pos.array[i*3+1]-=.5;
-    pos.array[i*3+2]-=.1;
-    if(pos.array[i*3+1]<0){pos.array[i*3+1]=40;pos.array[i*3+2]=carGroup.position.z+(Math.random()-0.5)*200;}
-  }
-  pos.needsUpdate=true;
-
-  // Pulse stop markers
-  stopMeshes.forEach((m,i)=>{
-    m.material.opacity=.4+.3*Math.sin(t*3+i);
-    m.rotation.y=t*.5;
-  });
 
   drawMinimap();
   renderer.render(scene,cam);
